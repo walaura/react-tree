@@ -1,29 +1,49 @@
-import { $header, $resizer, $prop, $icon } from './elements';
+import { $header, $resizer, $prop, Icon, createElement } from './elements';
+
+export class MutableTextNode {
+	constructor(text) {
+		this.$el = document.createTextNode(text);
+	}
+	update(text) {
+		this.$el.textContent = text;
+	}
+}
 
 export class MutableNode {
 	hidden = false;
 	position = [0, 0];
 	size = [0, 0];
 
-	constructor({ props, type }, { $rootContainer }) {
+	constructor({ props, type, owner, id }, { $rootContainer }) {
 		this.$el = document.createElement('x-window');
 		this.$props = document.createElement('x-props');
-		this.$textContent = document.createElement('x-text-content');
+		this.$text = document.createElement('x-text-content');
 		this.$children = document.createElement('x-children');
 		this.type = type;
+		this.owner = owner;
 		this.$rootContainer = $rootContainer;
 		this.$el.tabIndex = 0;
+		this.id = id;
 
 		Object.entries(props).forEach(([k, v]) => {
 			this.setProp(k, v);
 		});
 
-		this.setSize(300, 300);
-		this.setPosition(20, 20);
+		if (localStorage[this.id + '/position']) {
+			this.setPosition(...JSON.parse(localStorage[this.id + '/position']));
+		} else {
+			this.setPosition(20, 20);
+		}
+
+		if (localStorage[this.id + '/size']) {
+			this.setSize(...JSON.parse(localStorage[this.id + '/size']));
+		} else {
+			this.setSize(300, 300);
+		}
 
 		this.$el.appendChild(
 			$header({
-				name: this.type,
+				name: [this.owner, this.type].join('/'),
 				onMoveStart: () => {
 					this.__lockedPosition = [...this.position];
 				},
@@ -48,16 +68,18 @@ export class MutableNode {
 				},
 			})
 		);
-		this.$el.appendChild(this.$textContent);
+		this.$el.appendChild(this.$text);
 		this.$el.appendChild(this.$props);
 		this.$el.appendChild(this.$children);
-		this.$el.addEventListener('click', () => {
+		this.$el.addEventListener('focus', () => {
 			this.focus();
+		});
+		this.$el.addEventListener('click', () => {
+			this.foreground();
 		});
 	}
 
-	focus() {
-		this.$el.focus();
+	foreground() {
 		if (!this.$rootContainer.dataset.lastStackIndex) {
 			this.$rootContainer.dataset.lastStackIndex = 0;
 		}
@@ -65,28 +87,32 @@ export class MutableNode {
 		this.$el.style.zIndex = this.$rootContainer.dataset.lastStackIndex;
 	}
 
+	focus() {
+		this.foreground();
+		this.$el.focus();
+	}
+
 	setPosition(x, y) {
 		this.position = [x, y];
 		this.$el.style.transform = `translateX(${x}px) translateY(${y}px)`;
+		localStorage[this.id + '/position'] = JSON.stringify(this.position);
 	}
 
 	setSize(x, y) {
 		this.size = [x, y];
 		this.$el.style.width = `${x}px`;
+		localStorage[this.id + '/size'] = JSON.stringify(this.size);
 	}
 
 	setHidden(to) {
 		this.hidden = to;
 		this.$el.hidden = to;
+		localStorage[this.id + '/hidden'] = JSON.stringify(this.hidden);
 		if (!to) {
 			requestAnimationFrame(() => {
 				this.focus();
 			});
 		}
-	}
-
-	setTextContent(content) {
-		this.$textContent.innerText = content;
 	}
 
 	setProp(key, val) {
@@ -101,13 +127,25 @@ export class MutableNode {
 	}
 
 	appendChild(child) {
-		if (child.$el) {
-			child.setHidden(true);
+		child.parent = this;
+		if (child instanceof MutableNode) {
+			if (localStorage[child.id + '/hidden']) {
+				child.setHidden(JSON.parse(localStorage[child.id + '/hidden']));
+			} else {
+				child.setHidden(true);
+			}
 			this.$rootContainer.appendChild(child.$el);
 			this.$children.appendChild(
-				$icon({
-					name: child.type,
+				Icon({
+					name:
+						child.owner === this.owner
+							? child.type
+							: createElement('span', {}, [
+									createElement('x-small', {}, child.owner),
+									child.type,
+							  ]),
 					type: child.type,
+					owner: child.owner,
 					controls: child,
 					onClick: () => {
 						if (child.hidden) {
@@ -117,6 +155,9 @@ export class MutableNode {
 					},
 				})
 			);
+		}
+		if (child instanceof MutableTextNode) {
+			this.$text.appendChild(child.$el);
 		}
 	}
 

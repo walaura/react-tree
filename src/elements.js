@@ -8,25 +8,55 @@ const hash = function(str) {
 	return returnable % 278;
 };
 
-export const $prop = (name, val) => {
-	const $container = document.createElement('dl');
-	const $name = document.createElement('dt');
-	const $def = document.createElement('dd');
+export const createElement = (el, props = {}, children = []) => {
+	const $el = document.createElement(el);
+	Object.entries(props).forEach(([k, v]) => {
+		if (k.substring(0, 2) === 'on') {
+			$el.addEventListener(k.substring(2).toLowerCase(), v);
+		} else {
+			$el.setAttribute(k, v);
+		}
+	});
 
-	$container.dataset.key = name;
+	if (!Array.isArray(children)) children = [children];
+	children
+		.filter($child => !!$child)
+		.forEach($child => {
+			if (typeof $child === 'string' || typeof $child === 'number') {
+				$el.appendChild(document.createTextNode($child));
+			} else {
+				$el.appendChild($child);
+			}
+		});
+
+	return $el;
+};
+
+export const $prop = (name, val) => {
+	const $name = createElement('dt');
+	const $def = createElement('dd');
+
 	$name.innerText = name;
 
-	if (name.substring(0, 2) === 'on') {
-		const $btn = document.createElement('button');
-		$btn.innerText = `fire ${name}`;
-		$btn.addEventListener('click', val);
+	if (name === 'onChange') {
+		const $btn = createElement('input', {
+			[name]: val,
+		});
+		$def.appendChild($btn);
+	} else if (name.substring(0, 2) === 'on') {
+		const $btn = createElement(
+			'button',
+			{
+				[name]: val,
+			},
+			[`fire ${name}`]
+		);
 		$def.appendChild($btn);
 	} else {
 		$def.innerText = val;
 	}
 
-	$container.appendChild($name);
-	$container.appendChild($def);
+	const $container = createElement('dl', { 'data-key': name }, [$name, $def]);
 
 	return $container;
 };
@@ -82,24 +112,26 @@ export const $resizer = ({ onResize, onResizeStart }) => {
 	return $resize;
 };
 
-export const $icon = ({ name, type, controls, onClick }) => {
-	const $btn = document.createElement('button');
-	const $label = document.createElement('label');
-	const $icon = document.createElement('img');
-
+export const Icon = ({ name, type, owner, controls, onClick }) => {
+	const $icon = createElement('img');
+	const $ownerIcon = createElement('img', { 'data-mini': true });
 	import(`./icons/${hash(type)}.png`).then(icon => {
 		$icon.src = icon;
 	});
+	if (owner) {
+		import(`./icons/${hash(owner)}.png`).then(icon => {
+			$ownerIcon.src = icon;
+		});
+	}
 
-	$label.innerText = name;
+	const $btn = createElement(
+		'button',
+		{
+			onDblClick: onClick,
+		},
+		[$icon, owner && $ownerIcon, createElement('label', {}, name)]
+	);
 
-	$btn.addEventListener('dblclick', onClick);
-	$btn.addEventListener('click', ev => {
-		$btn.focus();
-		ev.stopPropagation();
-	});
 	$btn.controls = controls;
-	$btn.appendChild($icon);
-	$btn.appendChild($label);
 	return $btn;
 };

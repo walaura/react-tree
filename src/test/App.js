@@ -1,43 +1,25 @@
 import React, { Component } from 'react';
+import Clock from './Clock';
+import ShoppingList from './ShoppingList';
 import logo from './logo.svg';
+import './App.css';
 
 class App extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			counter: 0,
-			notes: ['milk', 'eggs'],
 		};
 	}
 	render() {
 		return (
 			<div className="App" title="Test">
-				<div>
-					notes
-					<img src={logo} alt="logo" />
-					<button
-						onClick={() =>
-							this.setState(({ notes }) => ({ notes: [...notes, Date.now()] }))
-						}
-					>
-						add note
-						{JSON.stringify(this.state.notes)}
-					</button>
-					<ul>
-						{this.state.notes.map((note, index) => (
-							<li
-								onClick={() => {
-									this.setState(({ notes }) => ({
-										notes: notes.filter((_, i) => i !== index),
-									}));
-								}}
-								key={index}
-							>
-								{note}
-							</li>
-						))}
-					</ul>
+				<div className="App-header">
+					<img src={logo} className="App-logo" alt="logo" />
+					<h2>Welcome to React</h2>
 				</div>
+				<Clock />
+				<ShoppingList />
 				<div className="App-intro">
 					<div className="button-container">
 						<button

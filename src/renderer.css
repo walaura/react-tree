@@ -1,12 +1,19 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300,700');
 
 [hidden] {
 	display: none !important;
 }
 
-body {
+:root {
 	font-family: 'Roboto Mono', arial, monospace;
-	font-size: 0.9em;
+	font-size: 0.8em;
+	font-weight: 300;
+	--highlight: #666;
+	--highlight-blue: #2962ff;
+}
+
+body {
+	font: inherit;
 }
 
 body * {
@@ -14,9 +21,62 @@ body * {
 	padding: 0;
 }
 
+x-notifications {
+	position: fixed;
+	bottom: 1em;
+	right: 1em;
+}
+
+x-notification {
+	display: block;
+	animation: notify 0.5s both;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+
+x-notification-drawable {
+	padding: 1em;
+	background: #eee;
+	color: var(--highlight-blue);
+	display: block;
+	margin-top: 2px;
+	width: 20em;
+}
+
+x-notification[data-out] {
+	animation: notify-out 0.5s both;
+}
+
+@keyframes notify {
+	from {
+		transform: translateY(2em);
+		opacity: 0;
+		max-height: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+		max-height: 5em;
+	}
+}
+@keyframes notify-out {
+	from {
+		transform: translateY(0);
+		opacity: 1;
+		max-height: 5em;
+	}
+	to {
+		transform: translateY(-2em);
+		opacity: 0;
+		max-height: 0;
+	}
+}
+
+x-notification header {
+	font-weight: 700;
+}
+
 x-window {
-	--highlight-blue: #2962ff;
-	--highlight: #666;
 	position: relative;
 	display: block;
 	margin: 1em;
@@ -29,6 +89,7 @@ x-window {
 
 x-window:focus,
 x-window:focus-within {
+	outline: none;
 	--highlight: #000;
 	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
 }
@@ -76,19 +137,32 @@ x-children button {
 	all: initial;
 	font: inherit;
 	font-size: 1em;
-	height: 6em;
+	min-height: 4em;
+	padding: 1em;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start;
 	flex-direction: column;
 }
 
 x-children button img {
 	image-rendering: crisp-edges;
+	margin-bottom: 6px;
+}
+
+x-children button img[data-mini='true'] {
+	position: relative;
+	margin-bottom: -32px;
+	top: -32px;
+	right: -6px;
+	transform-origin: bottom right;
+	transform: scale(0.75);
 }
 
 x-children button label {
 	padding: 0.1em 0.5em;
+	white-space: pre-wrap;
+	text-align: center;
 }
 
 x-children button:focus label {
@@ -96,9 +170,14 @@ x-children button:focus label {
 	color: #fff;
 }
 
+x-children x-small {
+	display: block;
+	opacity: 0.75;
+}
+
 x-children:not(:empty) {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(4em, 6em));
+	grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
 }
 
 x-props {
@@ -143,10 +222,10 @@ x-props dl + dl {
 x-window .resizer {
 	cursor: nwse-resize;
 	position: absolute;
+	height: 100%;
 	bottom: -0.5em;
 	right: -0.5em;
 	width: 1em;
-	height: 1em;
 	transform: scale(2);
-	opacity: 0.1;
+	opacity: 0;
 }
