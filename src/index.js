@@ -1,10 +1,7 @@
 import React from 'react';
 // import ReactDOM from 'react-dom';
-import MyCustomRenderer from './myCustomRenderer';
-import './index.css';
-import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+import { render } from './renderer';
+import App from './test/App';
 
 // ReactDOM.render(<App />, document.getElementById('root'));
-MyCustomRenderer.render(<App />, document.getElementById('root'));
-registerServiceWorker();
+render(<App />, document.getElementById('root'));

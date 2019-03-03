@@ -1,5 +1,6 @@
 {
-	"name": "react-tree",
+  "name": "react-tree-renderer",
+  "index": "src/renderer.js",
 	"version": "0.1.0",
 	"dependencies": {
 		"react": "^16.4.0",
