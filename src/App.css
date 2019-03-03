@@ -36,15 +36,33 @@ x-window:focus-within {
 x-window header {
 	background: var(--highlight);
 	color: #fff;
+	display: flex !important;
+	align-items: center;
+	justify-content: space-between;
+	padding: 01em 1em 1.25em;
+}
+
+x-window header button {
+	all: initial;
+	font: inherit;
+	color: #fff;
+	font-size: 1em;
+	padding: 0.5em;
+	margin: -0.5em;
+	cursor: pointer;
+}
+
+x-window header button:before {
+	content: '[';
+	opacity: 0.75;
+}
+x-window header button:after {
+	content: ']';
+	opacity: 0.75;
 }
 
 x-text-content:not(:empty) {
 	background: yellow;
-}
-
-x-window header,
-x-text-content:not(:empty),
-summary {
 	padding: 1em;
 	display: block;
 }
