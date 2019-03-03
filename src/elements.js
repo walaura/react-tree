@@ -32,20 +32,13 @@ export const createElement = (el, props = {}, children = []) => {
 	return $el;
 };
 
-export const $prop = (name, val) => {
-	const $name = createElement('dt');
+export const Prop = ({ name, val, type }) => {
+	const $name = createElement('dt', {}, name);
 	const $def = createElement('dd');
 
-	$name.innerText = name;
-
-	if (name === 'onChange') {
-		const $btn = createElement('input', {
-			[name]: val,
-		});
-		$def.appendChild($btn);
-	} else if (name.substring(0, 2) === 'on') {
+	if (name.substring(0, 2) === 'on') {
 		const $btn = createElement(
-			'button',
+			type,
 			{
 				[name]: val,
 			},

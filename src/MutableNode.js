@@ -1,4 +1,4 @@
-import { $header, $resizer, $prop, Icon, createElement } from './elements';
+import { $header, $resizer, Prop, Icon, createElement } from './elements';
 
 export class MutableTextNode {
 	constructor(text) {
@@ -115,14 +115,17 @@ export class MutableNode {
 		}
 	}
 
-	setProp(key, val) {
+	setProp(name, val) {
 		const cur = [...this.$props.children].findIndex(
-			$el => $el.dataset.key === key
+			$el => $el.dataset.key === name
 		);
 		if (cur >= 0) {
-			this.$props.replaceChild($prop(key, val), this.$props.children[cur]);
+			this.$props.replaceChild(
+				Prop({ name, val, type: this.type }),
+				this.$props.children[cur]
+			);
 		} else {
-			this.$props.appendChild($prop(key, val));
+			this.$props.appendChild(Prop({ name, val, type: this.type }));
 		}
 	}
 
