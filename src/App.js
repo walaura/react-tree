@@ -12,9 +12,10 @@ class App extends Component {
 	}
 	render() {
 		return (
-			<div className="App">
+			<div className="App" title="Test">
 				<div>
 					notes
+					<img src={logo} alt="logo" />
 					<button
 						onClick={() =>
 							this.setState(({ notes }) => ({ notes: [...notes, Date.now()] }))
